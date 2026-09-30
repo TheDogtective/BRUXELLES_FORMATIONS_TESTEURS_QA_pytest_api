@@ -87,3 +87,32 @@ def test_city(city, status_expected):
     response = requests.get(f"{BASE_URL}/api/events", params={"city": city}, timeout=TIMEOUT)
 
     assert response.status_code == status_expected, response.text
+
+
+@pytest.mark.parametrize(
+    "city, expected_status, expected_len",
+    [
+        (lambda c: c, 200, "greater than zero"),
+        (str.upper, 200, "greater than zero"),
+        (str.lower, 200, "greater than zero"),
+        ("Orgrimmar", 200, "equal to zero")
+    ], ids=["Normal City Case", "MAJ City Case", "Min City Case", "Unknown City Case"]
+)
+def test_real_city(city, expected_status, expected_len):
+    catalog = requests.get(f"{BASE_URL}/api/events", timeout=TIMEOUT).json()
+    base_city = catalog[0]["city"] 
+    actual_city_param = city(base_city) if callable(city) else city
+    response = requests.get(f"{BASE_URL}/api/events", params={"city": actual_city_param}, timeout=TIMEOUT)
+
+    assert response.status_code == expected_status, response.text
+    
+    response_data = response.json()
+
+    if expected_len == "greater than zero":
+        assert len(response_data) > 0
+
+        for event in response_data:
+            assert event["city"] != ""
+
+    elif expected_len == "equal to zero":
+        assert len(response_data) == 0
