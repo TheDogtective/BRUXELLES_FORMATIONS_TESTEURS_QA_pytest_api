@@ -60,3 +60,12 @@ def test_echouaayyy():
 def test_event_404(id):
     response = requests.get(f"{BASE_URL}/api/events/{id}", timeout=TIMEOUT)
     assert response.status_code == 404, response.text
+
+
+def test_error422(id):
+    response = requests.get(f"{BASE_URL}/api/events/{id}", timeout=TIMEOUT)
+    assert response.status_code == 404, response.text
+
+    error = response.json()
+    assert error["detail"][0]["loc"] == ['path', 'event_id']
+    assert "integer" in error["detail"][0]["msg"].lower()

@@ -116,3 +116,32 @@ def test_real_city(city, expected_status, expected_len):
 
     elif expected_len == "equal to zero":
         assert len(response_data) == 0
+
+
+@mark.parametrize(
+    "no_title",
+    [
+        ("magielol"),
+        ("echouayyy"),
+        ("too moch")
+    ], ids=["It's really magic", "Matricule 245", "Never too Moch"]
+)
+
+def test_c3_magielol(no_title):
+    response = requests.get(f"{BASE_URL}/api/events", params={"q": no_title})
+
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+def test_q_vide():
+    res = requests.get(f"{BASE_URL}/api/events", timeout=TIMEOUT)
+    res3 = requests.get(f"{BASE_URL}/api/events?q=", timeout=TIMEOUT)
+    assert res.status_code == 200, res.text
+    assert res3.status_code == 200, res3.text
+
+    full_events = res.json()
+    empty_events = res3.json()
+    assert len(empty_events) == len(full_events)
+
+
