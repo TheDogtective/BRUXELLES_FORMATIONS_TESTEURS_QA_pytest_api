@@ -5,8 +5,8 @@
 #   1. Commande à 1 ligne : total = quantité x prix
 #   2. Commande à 2 lignes (2 catégories différentes) : 2 lignes dans la réponse, total = somme
 #   3. Après une commande acceptée : "available" baisse de la quantité commandée
-#   4. RM3 : exactement 6 billets au total -> acceptée
-#   5. RM3 : 7 billets au total -> refusée
+#   4. RM3 : exactement 6 billets (2 catégories différentes minimum) au total -> acceptée
+#   5. RM3 : 7 billets (2 catégories différentes minimum) au total -> refusée
 #   6. RM1 : quantité = stock restant -> acceptée
 #   7. RM1 : stock restant + 1 -> refusée
 #   8. Une commande refusée ne change pas les disponibilités
