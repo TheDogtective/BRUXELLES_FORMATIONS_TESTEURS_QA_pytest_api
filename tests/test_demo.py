@@ -1,6 +1,9 @@
 # Remise à niveau
 import requests
 import pytest
+from jsonschema import validate
+from helpers import load_json
+from jsonschema import ValidationError
 
 BASE_URL = "http://localhost:8000"
 TIMEOUT = 5
@@ -69,3 +72,44 @@ def test_error422(id):
     error = response.json()
     assert error["detail"][0]["loc"] == ['path', 'event_id']
     assert "integer" in error["detail"][0]["msg"].lower()
+
+
+EVENT_SCHEMA = {
+     "type": "object",
+  "required": ["id", "title", "city"],
+  "properties": {
+    "id": {"type": "integer"},
+    "title": {"type": "string"},
+    "city": {"type": "string"},
+    "capacity": {"type": "string"},
+    "adresse": {
+        "type": "object",
+        "required": ["rue", "code_postal", "numero"],
+    }
+  }
+}
+
+
+IMPORTED_SCHEMA = load_json("schemas/event.schema.json")
+
+def test_schema_imported():
+    event_test = {
+        "id": 5,
+        "title": "test",
+        "city": "test"
+    }
+
+    validate(instance=event_test, schema=IMPORTED_SCHEMA)
+
+
+def schema_must_break():
+    event_test = {
+            "id": 5,
+            "title": "test",
+            "city": "test"
+        }
+
+    del event_test["id"]
+
+    with pytest.raises(ValidationError):
+        validate(event_test, IMPORTED_SCHEMA)
