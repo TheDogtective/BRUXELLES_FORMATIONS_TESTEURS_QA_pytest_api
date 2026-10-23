@@ -77,3 +77,32 @@ def small_event(base_url, orga_headers):
         headers=orga_headers,
         timeout=TIMEOUT,
     )
+
+
+@pytest.fixture
+def event_too_big(base_url, orga_headers):
+    starts_at = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(days=30)
+    payload = {
+        "title": f"[TEST J4] {uuid.uuid4().hex[:8]}",
+        "city": "Testville",
+        "starts_at": starts_at.isoformat(),
+        "capacity": 20,
+        "categories": [
+            {"name": "Standard", "price_cents": 1000, "quota": 10},
+            {"name": "Reduit", "price_cents": 600, "quota": 10},
+        ],
+    }
+    response = requests.post(
+        f"{base_url}/api/admin/events", json=payload, headers=orga_headers, timeout=TIMEOUT
+    )
+    assert response.status_code == 201, response.text
+    event = response.json()
+
+    yield event
+
+    requests.put(
+        f"{base_url}/api/admin/events/{event['id']}",
+        json={"status": "archived"},
+        headers=orga_headers,
+        timeout=TIMEOUT,
+    )

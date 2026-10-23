@@ -28,6 +28,14 @@ def get_all_events(base_url):
 
     return response.json()
 
+
+def get_event(base_url, event_id):
+    response = requests.get(f"{base_url}/api/events/{event_id}", timeout=TIMEOUT)
+    assert response.status_code == 200, response.text
+
+    return response.json()
+
+
 def get_bookable_event_cat(base_url, events_summary, min_available=1):
     for event in events_summary:
         response = requests.get(f"{base_url}/api/events/{event['id']}", timeout=TIMEOUT)
@@ -43,3 +51,18 @@ def get_bookable_event_cat(base_url, events_summary, min_available=1):
                     "category": category
                     }
     return None
+
+def create_order(base_url, headers, event_id, items):
+    return requests.post(
+        f"{base_url}/api/orders",
+        json={"event_id": event_id, "items": items},
+        headers=headers,
+        timeout=TIMEOUT,
+    )
+
+
+def get_available(base_url, event_id, category_id):
+    response = requests.get(f"{base_url}/api/events/{event_id}", timeout=TIMEOUT)
+    assert response.status_code == 200, response.text
+    event = response.json()
+    return next(cat["available"] for cat in event["categories"] if cat["id"] == category_id)
